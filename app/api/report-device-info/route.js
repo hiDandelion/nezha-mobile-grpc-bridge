@@ -18,9 +18,15 @@ const protoDescriptor = grpc.loadPackageDefinition(packageDefinition);
 const nezhaService = protoDescriptor.proto.NezhaService;
 
 export async function POST(request) {
-    const { server, secret, identifier, systemVersion, memoryTotal, diskTotal, bootTime, agentVersion, cpuUsage, memoryUsed, diskUsed, networkIn, networkOut, networkInSpeed, networkOutSpeed, uptime } = await request.json();
+    const { server, ssl, secret, identifier, systemVersion, memoryTotal, diskTotal, bootTime, agentVersion, cpuUsage, memoryUsed, diskUsed, networkIn, networkOut, networkInSpeed, networkOutSpeed, uptime } = await request.json();
 
-    const client = new nezhaService(server, grpc.credentials.createInsecure());
+    let client;
+    if (ssl) {
+        client = new nezhaService(server, grpc.credentials.createSsl());
+    }
+    else {
+        client = new nezhaService(server, grpc.credentials.createInsecure());
+    }
 
     const metadata = new grpc.Metadata();
     metadata.add('client_secret', secret);
